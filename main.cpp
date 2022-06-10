@@ -74,6 +74,17 @@ int main() {
         return 0;
     }
 
+    // TODO: Prepare data using json.
+    json j;
+    std::ifstream i("data.json");
+    i >> j;
+
+    std::cout << "Downloading to data.json.." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << "data.json preview:" << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::cout << j.dump(4) << std::endl;
+
     // TODO: Visualize it in form of a graph.
 
 //    // Create a vector with the xtic labels for the boxes
