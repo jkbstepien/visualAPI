@@ -5,6 +5,7 @@
 
 #include "sciplot/sciplot.hpp"
 #include <nlohmann/json.hpp>
+#include <utility>
 #include <curl/curl.h>
 
 using namespace sciplot;
@@ -54,54 +55,19 @@ void get_page(const char *url, const char *file_name) {
 
 }
 
-int main() {
-    // Show main program information to the user and get option from user.
-    show_info();
-    int option = get_user_input();
+void exit_program() {
+    std::cout << "Exiting program.." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    exit(0);
+}
 
-    // Prepare urls for downloading data from Chess.com API.
-    std::string url_best_player = "https://api.chess.com/pub/player/hikaru/stats";
-    std::string url_best_players_by_cat = "https://api.chess.com/pub/leaderboards";
-    std::string url_by_country = "https://api.chess.com/pub/country/";
-    std::string url_by_title = "https://api.chess.com/pub/titled/";
+void get_json_file(std::string url, int file_number) {
+    std::cout << "Downloading JSON file.." << std::endl;
+    std::string i_file = "../data" + std::to_string(file_number) + ".json";
+    get_page(url.c_str(), i_file.c_str());
+}
 
-    std::string top_11_fide_countries[11] = {"US", "RU", "RC", "IN", "UA",
-                                             "AZ", "FR", "AM", "DE", "ES", "PL"};
-    std::string fide_titles[6] = {"GM", "IM", "FM", "WGM", "WIM", "WFM"};
-
-    // Download data with curl depending on user input.
-    if (option == 0) {
-        std::cout << "Exiting program." << std::endl;
-        exit(0);
-    } else if (option == 1) {
-        std::cout << "Downloading data of best server player.." << std::endl;
-        get_page(url_best_player.c_str(), "../data1.json");
-    } else if (option == 2) {
-        std::cout << "Downloading data of 10 best server players.." << std::endl;
-        get_page(url_best_players_by_cat.c_str(), "../data1.json");
-    } else if (option == 3) {
-        for (int i = 0; i < 11; i++) {
-            std::string i_url = url_by_country + top_11_fide_countries[i] + "/players";
-            std::string i_file = "../data" + std::to_string(i + 1) + ".json";
-            std::cout << "Downloading data for coutry - " + top_11_fide_countries[i] << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            get_page(i_url.c_str(), i_file.c_str());
-        }
-    } else if (option == 4) {
-        for (int i = 0; i < 6; i++) {
-            std::string i_url = url_by_title + fide_titles[i];
-            std::string i_file = "../data" + std::to_string(i + 1) + ".json";
-            std::cout << "Downloading data for title - " + fide_titles[i] << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            get_page(i_url.c_str(), i_file.c_str());
-        }
-    } else {
-        std::cout << "Incorrect option passed. Exiting program." << std::endl;
-        exit(1);
-    }
-
+json get_json_object() {
     // Get data from downloaded json files.
     json basic_json;
     std::ifstream input("../data1.json");
@@ -110,16 +76,20 @@ int main() {
     std::cout << "Contents of json file:" << std::endl;
     std::cout << basic_json.dump(2) << std::endl;
 
-    // TODO: Visualize it in form of a graph.
-    // TODO: Add saving file by option with number to different folder.
+    return basic_json;
+}
+
+void get_best_player_plot() {
+    // Get json object to work on.
+    json basic_json = get_json_object();
 
     // Plot option 1.
     Strings names = {"Hikaru"};
+    Strings game_results = {"win", "loss", "draw"};
+    Strings game_types = {"bullet", "blitz", "rapid"};
     Vec ratings = {basic_json["chess_bullet"]["best"]["rating"],
                    basic_json["chess_blitz"]["best"]["rating"],
                    basic_json["chess_rapid"]["best"]["rating"]};
-    Strings game_results = {"win", "loss", "draw"};
-    Strings game_types = {"bullet", "blitz", "rapid"};
     Vec bullet_games = {basic_json["chess_bullet"]["record"]["win"],
                         basic_json["chess_bullet"]["record"]["loss"],
                         basic_json["chess_bullet"]["record"]["draw"]};
@@ -168,7 +138,70 @@ int main() {
 
     fig.show();
 
-    fig.save("../plot.png");
+    fig.save("../plots/plot1.png");
+}
+
+void get_best_10_players_plot() {
+    // Get json object to work on.
+    json basic_json = get_json_object();
+}
+
+void get_players_by_country_plot() {
+    std::cout << "TODO" << std::endl;
+}
+
+void get_players_by_title_plot() {
+    std::cout << "TODO" << std::endl;
+}
+
+int main() {
+    // Show main program information to the user and get option from user.
+    show_info();
+    int option = get_user_input();
+
+    // Prepare urls for downloading data from Chess.com API.
+    std::string url_best_player = "https://api.chess.com/pub/player/hikaru/stats";
+    std::string url_best_players_by_cat = "https://api.chess.com/pub/leaderboards";
+    std::string url_by_country = "https://api.chess.com/pub/country/";
+    std::string url_by_title = "https://api.chess.com/pub/titled/";
+    std::string top_11_fide_countries[11] = {"US", "RU", "RC", "IN", "UA",
+                                             "AZ", "FR", "AM", "DE", "ES", "PL"};
+    std::string fide_titles[6] = {"GM", "IM", "FM", "WGM", "WIM", "WFM"};
+
+    if (option == 0) {
+        exit_program();
+    } else if (option == 1) {
+        // Download json file.
+        get_json_file(url_best_player, 1);
+        get_best_player_plot();
+    } else if (option == 2) {
+        get_json_file(url_best_players_by_cat, 1);
+        get_best_10_players_plot();
+        // TODO: plot this option.
+    } else if (option == 3) {
+        for (int i = 0; i < 11; i++) {
+            std::string i_url = url_by_country + top_11_fide_countries[i] + "/players";
+            std::cout << "Downloading data for coutry - " + top_11_fide_countries[i] << "\t";
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            get_json_file(i_url, i + 1);
+            get_players_by_country_plot();
+            // TODO: plot this option.
+        }
+    } else if (option == 4) {
+        for (int i = 0; i < 6; i++) {
+            std::string i_url = url_by_title + fide_titles[i];
+            std::cout << "Downloading data for title - " + fide_titles[i] << "\t";
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+            get_json_file(i_url, i + 1);
+            get_players_by_title_plot();
+            // TODO: plot this option.
+        }
+    } else {
+        std::cout << "Incorrect option passed. Exiting program." << std::endl;
+        exit_program();
+    }
 
     return 0;
 }
