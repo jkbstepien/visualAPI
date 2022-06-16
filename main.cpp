@@ -70,9 +70,14 @@ int main() {
     std::string fide_titles[6] = {"GM", "IM", "FM", "WGM", "WIM", "WFM"};
 
     // Download data with curl depending on user input.
-    if (option == 1) {
+    if (option == 0) {
+        std::cout << "Exiting program." << std::endl;
+        exit(0);
+    } else if (option == 1) {
+        std::cout << "Downloading data of best server player.." << std::endl;
         get_page(url_best_player.c_str(), "../data1.json");
     } else if (option == 2) {
+        std::cout << "Downloading data of 10 best server players.." << std::endl;
         get_page(url_best_players_by_cat.c_str(), "../data1.json");
     } else if (option == 3) {
         for (int i = 0; i < 11; i++) {
@@ -97,55 +102,73 @@ int main() {
         exit(1);
     }
 
-    // TODO: Prepare data using json.
-//    json j;
-//    std::ifstream i("data1.json");
-//    i >> j;
-//
-//    std::cout << "Downloading to data.json.." << std::endl;
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-//    std::cout << j.dump(4) << std::endl;
+    // Get data from downloaded json files.
+    json basic_json;
+    std::ifstream input("../data1.json");
+    input >> basic_json;
+
+    std::cout << "Contents of json file:" << std::endl;
+    std::cout << basic_json.dump(2) << std::endl;
 
     // TODO: Visualize it in form of a graph.
+    // TODO: Add saving file by option with number to different folder.
 
-//    // Create a vector with the xtic labels for the boxes
-//    Strings names = {"John", "Peter", "Thomas", "Marta"};
-//
-//    // Create a vector with the y values for the boxes
-//    Vec ages = {44, 27, 35, 20};
-//
-//    // Create a vector with the xwidth values for the boxes
-//    Vec experiences = {0.8, 0.4, 0.7, 0.9};
-//
-//    // Create a Plot object
-//    Plot plot;
-//
-//    // Set the legend to the top left corner of the plot
-//    plot.legend().atTopLeft();
-//
-//    // Set the y label and its range
-//    plot.ylabel("Age");
-//    plot.yrange(0.0, 50);
-//    plot.size(1200, 800);
-//
-//    // Plot the boxes using y values.
-//    plot.drawBoxes(names, ages, experiences)
-//            .fillSolid()
-//            .fillColor("pink")
-//            .fillIntensity(0.5)
-//            .borderShow()
-//            .labelNone();
-//
-//    // Adjust the relative width of the boxes
-//    plot.boxWidthRelative(0.75);
-//
-//    plot.autoclean(false);
-//
-//    // Show the plot in a pop-up window
-//    plot.show();
-//
-//    // Save the plot to a PDF file
-//    plot.save("example-boxes-ticklabels.pdf");
-//
-//    return 0;
+    // Plot option 1.
+    Strings names = {"Hikaru"};
+    Vec ratings = {basic_json["chess_bullet"]["best"]["rating"],
+                   basic_json["chess_blitz"]["best"]["rating"],
+                   basic_json["chess_rapid"]["best"]["rating"]};
+    Strings game_results = {"win", "loss", "draw"};
+    Strings game_types = {"bullet", "blitz", "rapid"};
+    Vec bullet_games = {basic_json["chess_bullet"]["record"]["win"],
+                        basic_json["chess_bullet"]["record"]["loss"],
+                        basic_json["chess_bullet"]["record"]["draw"]};
+
+    Plot plot1;
+    plot1.legend().atOutsideBottom();
+    plot1.legend().title("Rating of " + names[0] + " in different game types");
+    plot1.legend().titleFontSize(16);
+    plot1.size(1200, 800);
+
+    plot1.ylabel("Rating");
+
+    plot1.drawBoxes(game_types, ratings)
+            .fillSolid()
+            .fillIntensity(0.5)
+            .borderShow()
+            .labelNone();;
+
+    plot1.boxWidthRelative(0.75);
+    plot1.autoclean(false);
+
+    Plot plot2;
+    plot2.legend().atOutsideBottom();
+    plot2.legend().title("Number of games " + names[0] + " by result");
+    plot2.legend().titleFontSize(16);
+    plot2.size(1200, 800);
+
+    plot2.ylabel("Number of games");
+
+    plot2.drawBoxes(game_results, bullet_games)
+            .fillSolid()
+            .fillIntensity(0.5)
+            .borderShow()
+            .labelNone();;
+
+    plot2.boxWidthRelative(0.75);
+    plot2.autoclean(false);
+
+    // Use the previous plots as sub-figures in a larger 1x2 figure.
+    Figure fig = {{ plot1, plot2 }};
+
+    fig.size(1200, 800);
+    fig.title("Hikaru chess player statistics");
+    fig.fontSize(22);
+    fig.palette("dark2");
+
+    fig.show();
+
+    fig.save("../plot.png");
+
+    return 0;
 }
