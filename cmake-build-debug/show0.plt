@@ -38,13 +38,13 @@ set encoding utf8
 #==============================================================================
 # OUTPUT
 #==============================================================================
-set output '../plots/plot2_1.png'
+set output '../plots/plot4.png'
 set encoding utf8
 #==============================================================================
 # SETUP COMMANDS
 #==============================================================================
 
-set ylabel 'Rating' enhanced textcolor '#404040'
+set ylabel 'Number of players' enhanced textcolor '#404040'
 
 set border 3 front linetype 1 linewidth 2 linecolor '#404040'
 unset grid
@@ -63,7 +63,7 @@ unset ztics
 unset mztics
 unset rtics
 unset mrtics
-set key bmargin center opaque vertical Left noinvert reverse width 0 height 1 samplen 4 spacing 1 enhanced textcolor '#404040' title 'Rating of top 50 players' enhanced textcolor '#404040' font ',16' left nobox maxrows auto maxcols auto
+set key bmargin center opaque vertical Left noinvert reverse width 0 height 1 samplen 4 spacing 1 enhanced textcolor '#404040' title 'Number of players by FIDE title' enhanced textcolor '#404040' font ',16' left nobox maxrows auto maxcols auto
 set boxwidth 0.75 relative
 set datafile missing "?"
 #==============================================================================
@@ -74,6 +74,6 @@ set style data histogram
 # PLOT COMMANDS
 #==============================================================================
 plot \
-    'plot0.dat' index 0 notitle with boxes linestyle 1 linewidth 2 fillstyle solid 0.5 border
+    'plot0.dat' index 0 using 0:2:xtic(1) notitle with boxes linestyle 1 linewidth 2 fillstyle solid 0.5 border
 
 set output

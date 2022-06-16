@@ -54,7 +54,6 @@ int main() {
     } else if (option == 2) {
         get_json_file(url_best_players_by_cat, 1);
         get_best_50_players();
-        // TODO: plot this option.
     } else if (option == 3) {
         for (int i = 0; i < 11; i++) {
             std::string i_url = url_by_country + top_11_fide_countries[i] + "/players";
@@ -72,9 +71,8 @@ int main() {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             get_json_file(i_url, i + 1);
-            get_players_by_title_plot();
-            // TODO: plot this option.
         }
+        get_players_by_title_plot();
     } else {
         std::cout << "Incorrect option passed. Exiting program." << std::endl;
         exit_program();
@@ -152,6 +150,16 @@ json get_json_object() {
 
     std::cout << "Contents of json file:" << std::endl;
     std::cout << basic_json.dump(2) << std::endl;
+
+    return basic_json;
+}
+
+json get_json_object_by_number(int num) {
+    // Get data from downloaded json files.
+    json basic_json;
+    std::string i_str = "../data" + std::to_string(num) + ".json";
+    std::ifstream input(i_str);
+    input >> basic_json;
 
     return basic_json;
 }
@@ -248,7 +256,6 @@ void get_best_50_players() {
     }
     for (int i = 0; i < 50; i++) {
         if (unique_countries.find(countries[i]) != unique_countries.end()) {
-            std::cout << i << std::endl;
             country_freq_map[countries[i]] += 1;
             country_rank[i] += 1;
         }
@@ -306,7 +313,36 @@ void get_players_by_country_plot() {
 }
 
 void get_players_by_title_plot() {
-    // Get json object to work on.
-    json basic_json = get_json_object();
-    std::cout << "TODO" << std::endl;
+    // Get json objects to work on.
+    Strings fide_titles = {"GM", "IM", "FM", "WGM", "WIM", "WFM"};
+    std::vector<int> fide_titles_no = {};
+    std::string placeholder;
+
+    for (int i = 0; i < 6; i++) {
+        json basic_json = get_json_object_by_number(i + 1);
+        fide_titles_no.push_back(basic_json["players"].size());
+        std::cout << fide_titles_no[i] << std::endl;
+    }
+
+    // Plot option 4.
+    Plot plot1;
+    plot1.legend().atOutsideBottom();
+    plot1.legend().title("Number of players by FIDE title");
+    plot1.legend().titleFontSize(16);
+    plot1.size(1200, 800);
+
+    plot1.ylabel("Number of players");
+
+    plot1.drawBoxes(fide_titles, fide_titles_no)
+            .fillSolid()
+            .fillIntensity(0.5)
+            .borderShow()
+            .labelNone();
+
+    plot1.boxWidthRelative(0.75);
+    plot1.autoclean(false);
+
+    plot1.show();
+
+    plot1.save("../plots/plot4.png");
 }
