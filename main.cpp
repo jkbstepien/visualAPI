@@ -27,7 +27,7 @@ void get_best_player_plot();
 
 void get_best_50_players();
 
-void get_players_by_country_plot();
+void get_player_stats();
 
 void get_players_by_title_plot();
 
@@ -39,10 +39,9 @@ int main() {
     // Prepare urls for downloading data from Chess.com API.
     std::string url_best_player = "https://api.chess.com/pub/player/hikaru/stats";
     std::string url_best_players_by_cat = "https://api.chess.com/pub/leaderboards";
-    std::string url_by_country = "https://api.chess.com/pub/country/";
+    std::string url_chosen_player = "https://api.chess.com/pub/player/";
     std::string url_by_title = "https://api.chess.com/pub/titled/";
-    std::string top_11_fide_countries[11] = {"US", "RU", "RC", "IN", "UA",
-                                             "AZ", "FR", "AM", "DE", "ES", "PL"};
+
     std::string fide_titles[6] = {"GM", "IM", "FM", "WGM", "WIM", "WFM"};
 
     if (option == 0) {
@@ -55,15 +54,15 @@ int main() {
         get_json_file(url_best_players_by_cat, 1);
         get_best_50_players();
     } else if (option == 3) {
-        for (int i = 0; i < 11; i++) {
-            std::string i_url = url_by_country + top_11_fide_countries[i] + "/players";
-            std::cout << "Downloading data for coutry - " + top_11_fide_countries[i] << "\t";
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::string nickname;
+        std::cout << "Enter nickname of player (ex. DanielNaroditsky|MagnusCarlsen|Hikaru): ";
+        std::cin >> nickname;
+        std::transform(nickname.begin(), nickname.end(), nickname.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+        std::string i_url = url_chosen_player + nickname;
 
-            get_json_file(i_url, i + 1);
-            get_players_by_country_plot();
-            // TODO: plot this option.
-        }
+        get_json_file(i_url, 1);
+        get_player_stats();
     } else if (option == 4) {
         for (int i = 0; i < 6; i++) {
             std::string i_url = url_by_title + fide_titles[i];
@@ -74,7 +73,7 @@ int main() {
         }
         get_players_by_title_plot();
     } else {
-        std::cout << "Incorrect option passed. Exiting program." << std::endl;
+        std::cout << "Incorrect option passed." << std::endl;
         exit_program();
     }
 
@@ -94,7 +93,7 @@ void show_info() {
     std::cout << "Usage:" << std::endl;
     std::cout << "\tPress 1 to see best server player statistics." << std::endl;
     std::cout << "\tPress 2 to see 50 best server players." << std::endl;
-    std::cout << "\tPress 3 to see number of players by top FIDE countries." << std::endl;
+    std::cout << "\tPress 3 to check stats of chosen player." << std::endl;
     std::cout << "\tPress 4 to see number of players by FIDE title." << std::endl;
     std::cout << "\n\tPress 0 to quit program." << std::endl;
 }
@@ -306,10 +305,19 @@ void get_best_50_players() {
     plot2.save("../plots/plot2_2.png");
 }
 
-void get_players_by_country_plot() {
+void get_player_stats() {
     // Get json object to work on.
     json basic_json = get_json_object();
-    std::cout << "TODO" << std::endl;
+
+    std::cout << "\nStats for " << basic_json["username"] << std::endl;
+    std::cout << "\tName: " << basic_json["name"] << std::endl;
+    std::cout << "\tIs verified? " << basic_json["verified"] << std::endl;
+    std::cout << "\tCountry: " << get_last_chars(basic_json["country"], 2)<< std::endl;
+    std::cout << "\tLocation: " << basic_json["location"] << std::endl;
+    std::cout << "\tTitle: " << basic_json["title"] << std::endl;
+    std::cout << "\tFollowers: " << basic_json["followers"] << std::endl;
+    std::cout << "\tIs streamer? " << basic_json["is_streamer"] << std::endl;
+    std::cout << "\tTwitch url: " << basic_json["twitch_url"] << std::endl;
 }
 
 void get_players_by_title_plot() {
@@ -321,7 +329,6 @@ void get_players_by_title_plot() {
     for (int i = 0; i < 6; i++) {
         json basic_json = get_json_object_by_number(i + 1);
         fide_titles_no.push_back(basic_json["players"].size());
-        std::cout << fide_titles_no[i] << std::endl;
     }
 
     // Plot option 4.
