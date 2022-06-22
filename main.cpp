@@ -207,7 +207,7 @@ void get_best_player_plot() {
             .fillSolid()
             .fillIntensity(0.5)
             .borderShow()
-            .labelNone();;
+            .labelNone();
 
     plot2.boxWidthRelative(0.75);
     plot2.autoclean(false);
