@@ -222,7 +222,7 @@ void get_best_player_plot() {
 
     fig.show();
 
-    fig.save("../plots/plot1.png");
+    fig.save("./plots/plot1.png");
 }
 
 void get_best_50_players() {
@@ -301,8 +301,8 @@ void get_best_50_players() {
     plot1.show();
     plot2.show();
 
-    plot1.save("../plots/plot2_1.png");
-    plot2.save("../plots/plot2_2.png");
+    plot1.save("./plots/plot2_1.png");
+    plot2.save("./plots/plot2_2.png");
 }
 
 void get_player_stats() {
@@ -351,5 +351,5 @@ void get_players_by_title_plot() {
 
     plot1.show();
 
-    plot1.save("../plots/plot4.png");
+    plot1.save("./plots/plot4.png");
 }

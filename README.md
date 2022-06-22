@@ -47,8 +47,8 @@ In detail, each option has 4 stages:
 
 ### 5. Example plots generated with program
 
-![Option 1 plot](./plots/plot1.png)
+![Option 1 plot](ttttt/plot1.png)
 
-![Option 4 plot](./plots/plot4.png)
+![Option 4 plot](ttttt/plot4.png)
 
-![(Option 2_2 plot)](./plots/plot2_2.png)
+![(Option 2_2 plot)](ttttt/plot2_2.png)
